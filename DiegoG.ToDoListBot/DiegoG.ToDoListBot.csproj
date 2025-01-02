@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-DiegoG.ToDoListBot-41f28588-3726-4ac7-a936-20def71aa237</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\GLV.Shared\GLV.Shared.ChatBot.EntityFramework\GLV.Shared.ChatBot.EntityFramework.csproj" />
+    <ProjectReference Include="..\..\GLV.Shared\GLV.Shared.ChatBot.Telegram\GLV.Shared.ChatBot.Telegram.csproj" />
+    <ProjectReference Include="..\..\GLV.Shared\GLV.Shared.ChatBot\GLV.Shared.ChatBot.csproj" />
+    <ProjectReference Include="..\..\GLV.Shared\GLV.Shared.Common\GLV.Shared.Common.csproj" />
+    <ProjectReference Include="..\..\GLV.Shared\GLV.Shared.Data\GLV.Shared.Data.csproj" />
+    <ProjectReference Include="..\..\GLV.Shared\GLV.Shared.EntityFrameworkHosting\GLV.Shared.EntityFrameworkHosting.csproj" />
+    <ProjectReference Include="..\..\GLV.Shared\GLV.Shared.EntityFramework\GLV.Shared.EntityFramework.csproj" />
+    <ProjectReference Include="..\..\GLV.Shared\GLV.Shared.Hosting\GLV.Shared.Hosting.csproj" />
+  </ItemGroup>
+</Project>
