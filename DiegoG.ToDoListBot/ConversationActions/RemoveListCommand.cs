@@ -24,15 +24,15 @@ public class RemoveListCommand : ConversationActionBase
         {
             if (update.Message is Message m and { Text: not null }) 
             {
-                await RemoveList(m.Text, Context.ConversationId);
+                await RemoveList(m.Text);
                 return ConversationActionEndingKind.Finished;
             }
             else if (update.KeyboardResponse is KeyboardResponse kr)
             {
-                if (kr.Data?.TryGetTextAfterFirst("", out var text) is true)
-                {
-
-                }
+                if (kr.Data?.TryGetTextAfter(Constants.ListDataHeader, out var text) is true && long.TryParse(text, out var listId))
+                    await RemoveList(listId);
+                else
+                    await Bot.RespondWithText("I'm sorry, I couldn't understand this message. Can you try again?");
             }
             else
                 await SendKeyboard();
@@ -45,7 +45,7 @@ public class RemoveListCommand : ConversationActionBase
                 return ConversationActionEndingKind.Finished;
             }
             else if (msg.Text.TryGetTextAfter(' ', out var text))
-                await RemoveList(text, Context.ConversationId);
+                await RemoveList(text);
             else
             {
                 Context.SetState(1, nameof(RemoveListCommand));
@@ -65,6 +65,9 @@ public class RemoveListCommand : ConversationActionBase
                     $"{Constants.ListDataHeader}{list.Id}"
                 );
 
+#error Check if there are any lists available
+#error Add a command to list lists (and view them)
+
                 keys.Add(new KeyboardRow(btn));
             }
 
@@ -74,9 +77,9 @@ public class RemoveListCommand : ConversationActionBase
         return ConversationActionEndingKind.Finished;
     }
 
-    private async Task RemoveList(string name, Guid conversationId)
+    private async Task RemoveList(string name)
     {
-        var chatid = conversationId.UnpackTelegramConversationId();
+        var chatid = Context.ConversationId.UnpackTelegramConversationId();
         var changes = await Services.GetRequiredService<ToDoListDbContext>().ToDoLists
                                     .Where(x => x.Name == name && x.ChatId == chatid)
                                     .ExecuteDeleteAsync();
@@ -93,9 +96,9 @@ public class RemoveListCommand : ConversationActionBase
         }
     }
 
-    private async Task RemoveList(long id, Guid conversationId)
+    private async Task RemoveList(long id)
     {
-        var chatid = conversationId.UnpackTelegramConversationId();
+        var chatid = Context.ConversationId.UnpackTelegramConversationId();
         var changes = await Services.GetRequiredService<ToDoListDbContext>().ToDoLists
                                     .Where(x => x.Id == id && x.ChatId == chatid)
                                     .ExecuteDeleteAsync();

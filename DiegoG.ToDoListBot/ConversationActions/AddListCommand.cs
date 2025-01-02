@@ -25,7 +25,7 @@ public class AddListCommand : ConversationActionBase
             if (firstSpace == -1 || firstSpace + 1 >= text.Length)
             {
                 Context.SetState(1, nameof(AddListCommand));
-                await RespondWithText("Please tell me the name of the list");
+                await Bot.RespondWithText("Please tell me the name of the list");
             }
             else
                 await AddList(text[(firstSpace + 1)..]);
@@ -37,7 +37,7 @@ public class AddListCommand : ConversationActionBase
                     .AddNewToDoList(update.ConversationId.UnpackTelegramConversationId(), name);
 
             Context.ResetState();
-            await RespondWithText("The list has been added!");
+            await Bot.RespondWithText("The list has been added!");
         }
 
         return ConversationActionEndingKind.Finished;
