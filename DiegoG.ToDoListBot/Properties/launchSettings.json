@@ -3,10 +3,7 @@
     "DiegoG.ToDoListBot": {
       "commandName": "Project",
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "ApiId": "24607747",
-        "ApiHash": "1a49eb4b8935d780fa7c54c85e786838",
-        "BotToken": "7788578706:AAF2OYkxbpKV_0ccmeqbU5rsghpbNPLyT_k"
+        "DOTNET_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true
     }
