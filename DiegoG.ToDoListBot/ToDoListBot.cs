@@ -10,10 +10,13 @@ using GLV.Shared.ChatBot.Telegram;
 using Telegram.Bot.Types.Enums;
 using Microsoft.Data.Sqlite;
 using TL;
+using System.Collections.Concurrent;
 
 namespace DiegoG.ToDoListBot;
 public class ToDoListBot : IDisposable
 {
+    private readonly ConcurrentQueue<UpdateContext> updates = [];
+
     private readonly IServiceScope Scope;
     private readonly ToDoListDbContext Context;
     private readonly ILogger<ToDoListBot> Logger;
@@ -21,7 +24,6 @@ public class ToDoListBot : IDisposable
 
     public TelegramChatBotClient BotClient { get; }
     public ChatBotManager ChatBotManager { get; }
-    public TaskMarshallingTelegramBotReactor TelegramReactor { get; }
 
     public ToDoListBot(ChatBotManager manager, IOptions<BotOptions> options, IServiceProvider services, ILogger<ToDoListBot> logger)
     {
@@ -38,18 +40,22 @@ public class ToDoListBot : IDisposable
         var botdb = new SqliteConnection($"Data Source={Path.Combine(Program.AppData, "ToDoListBot.sqlite")}");
         BotClient = new TelegramChatBotClient(
             "ToDoListBot", 
-            new Bot(options.Value.BotKey, options.Value.AppId, options.Value.ApiHash, botdb)
+            new Bot(options.Value.BotKey, options.Value.AppId, options.Value.ApiHash, botdb),
+            manager,
+            update =>
+            {
+                updates.Enqueue(new TelegramUpdateContext(update, BotClient!, BotClient!.ConversationIdFactory));
+                return Task.CompletedTask;
+            }
         );
         Logger = logger;
         BotClient.BotClient.Manager.Log = SinkBotClientLog;
         BotClient.BotClient.OnError += OnError;
-        TelegramReactor = new(BotClient, ChatBotManager);
     }
 
     public static ValueTask<bool> UpdateFilter(UpdateContext u) 
         => ValueTask.FromResult(u is TelegramUpdateContext update
                                 && update.Update.Type is UpdateType.Message
-                                                      or UpdateType.BusinessMessage
                                                       or UpdateType.CallbackQuery
         );
 
@@ -70,33 +76,13 @@ public class ToDoListBot : IDisposable
     public async Task Run(CancellationToken ct)
     {
         Logger.LogInformation("Initiating ToDoListBot");
-        var configureTask = Task.Run(async () =>
-        {
-            while (true)
-            {
-                try
-                {
-                    Logger.LogDebug("Configuring ToDoListBot");
 
-                    await BotClient.SetBotDescription("ToDo List Bot", "A bot that keeps track of to-do lists", "A very simple bot that you can use to keep track of your to-do lists right here on telegram!");
-                    await ChatBotManager.ConfigureChatBot(BotClient);
+        Logger.LogDebug("Configuring ToDoListBot");
 
-                    Logger.LogDebug("ToDoListBot Configured");
-                    return;
-                }
-                catch(RpcException ex)
-                {
-                    if (ex.Message.Contains("FLOOD", StringComparison.OrdinalIgnoreCase))
-                    {
-                        TimeSpan delay = ex.Data["X"] as TimeSpan? ?? TimeSpan.FromSeconds(60);
-                        Logger.LogWarning(ex, "Failed to configure bot, trying again in {delay}", delay);
-                        await Task.Delay(delay);
-                    }
-                    else
-                        throw;
-                }
-            }
-        }, ct);
+        await BotClient.SetBotDescription("ToDo List Bot", "A bot that keeps track of to-do lists", "A very simple bot that you can use to keep track of your to-do lists right here on telegram!");
+        await ChatBotManager.ConfigureChatBot(BotClient);
+
+        Logger.LogDebug("ToDoListBot Configured");
 
         while (ct.IsCancellationRequested is false)
         {
@@ -117,13 +103,13 @@ public class ToDoListBot : IDisposable
                     }
                 }
 
-            if (configureTask is not null && configureTask.IsCompleted)
+            int submitted = 0;
+            while (updates.TryDequeue(out var update)) 
             {
-                await configureTask;
-                configureTask = null;
+                await ChatBotManager.SubmitUpdate(update);
+                submitted++;
             }
 
-            var submitted = await TelegramReactor.SubmitAllUpdates();
             if (Logger.IsEnabled(LogLevel.Debug))
                 Logger.LogDebug("Submitted {messages} updates", submitted);
 

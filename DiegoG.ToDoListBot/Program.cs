@@ -5,6 +5,7 @@ using GLV.Shared.EntityFrameworkHosting;
 using Microsoft.Extensions.Hosting;
 using GLV.Shared.ChatBot.EntityFramework;
 using GLV.Shared.ChatBot;
+using TL;
 
 namespace DiegoG.ToDoListBot;
 
@@ -38,8 +39,19 @@ public static class Program
             "ToDoListBot",
             null,
             ToDoListBot.UpdateFilter,
-            collection
+            collection,
+            null,
+            (excp, bot, services) =>
+            {
+                bot.RespondWithText("I'm sorry, an unexpected error ocurred on my side. Can we try again?");
+                services.GetService<ILogger<ChatBotManager>>()?.LogError(excp, "An unexpected exception was thrown");
+                return ValueTask.FromResult<ConversationActionEndingKind?>(ConversationActionEndingKind.Finished);
+            }
         );
+        manager.SinkLogMessageAction = (lvl, msg, id, excp, services) =>
+        {
+            services.GetService<ILogger<ChatBotManager>>()?.Log((LogLevel)lvl, id, excp, msg);
+        };
         collection.AddSingleton(manager);
     }
 

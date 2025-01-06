@@ -2,6 +2,8 @@
 using DiegoG.ToDoListBot.Services;
 using GLV.Shared.ChatBot;
 using GLV.Shared.ChatBot.Telegram;
+using GLV.Shared.Common;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot.Types.Enums;
 
 namespace DiegoG.ToDoListBot.ConversationActions;
@@ -11,33 +13,39 @@ public class AddListCommand : ConversationActionBase
 {
     protected override async Task<ConversationActionEndingKind> PerformAsync(UpdateContext update)
     {
-        if (update is not TelegramUpdateContext tl
-            || tl.Update.Type is not UpdateType.Message
-            || string.IsNullOrWhiteSpace(tl.Update.Message!.Text)) 
+        if (await CheckForCancellation())
+            return ConversationActionEndingKind.Finished;
+
+        if (update.Message is not Message msg || string.IsNullOrWhiteSpace(msg.Text)) 
             return ConversationActionEndingKind.Finished;
 
         if (Context.Step == 1)
-            await AddList(tl.Update.Message!.Text);
+            await AddList(msg.Text);
         else
         {
-            var text = tl.Update.Message!.Text;
-            var firstSpace = text.IndexOf(' ');
-            if (firstSpace == -1 || firstSpace + 1 >= text.Length)
+            if (msg.Text.TryGetTextAfter(' ', out var listName) is false)
             {
                 Context.SetState(1, nameof(AddListCommand));
-                await Bot.RespondWithText("Please tell me the name of the list");
+                await Bot.RespondWithText("Please tell me the name of the list, or write /cancel if you want to do something else.");
             }
             else
-                await AddList(text[(firstSpace + 1)..]);
+                await AddList(listName);
         }
 
         async Task AddList(string name)
         {
-            Services.GetRequiredService<ToDoListDbContext>().ToDoLists
-                    .AddNewToDoList(update.ConversationId.UnpackTelegramConversationId(), name);
+            var chatId = update.ConversationId.UnpackTelegramConversationId();
+            var db = Services.GetRequiredService<ToDoListDbContext>();
+            if (string.IsNullOrWhiteSpace(name) || await db.ToDoLists.AnyAsync(x => x.Name == name && x.ChatId == chatId))
+                await Bot.RespondWithText("I can't add a list with that name; maybe there's already a list with that name? please give me another one, or write /cancel if you want to do something else.");
+            else
+            {
+                db.ToDoLists.AddNewToDoList(chatId, name);
+                await db.SaveChangesAsync();
 
-            Context.ResetState();
-            await Bot.RespondWithText("The list has been added!");
+                Context.ResetState();
+                await Bot.RespondWithText("The list has been added! What else can I do for you?");
+            }
         }
 
         return ConversationActionEndingKind.Finished;

@@ -18,11 +18,10 @@ public class DefaultAction : ConversationActionBase
             && tl.Update.Type is UpdateType.Message
             && string.IsNullOrWhiteSpace(tl.Update.Message!.Text) is false)
         {
-            if (await ChatBotManager.TryProcessCommand(tl.Update.Message!.Text, update, Context) is ConversationActionEndingKind.Repeat)
+            if (await ChatBotManager.CheckIfCommand(update, Context))
                 return ConversationActionEndingKind.Repeat;
         }
 
-        await update.Client.RespondWithText(update.ConversationId, "Hello there!");
         return ConversationActionEndingKind.Finished;
     }
 }
