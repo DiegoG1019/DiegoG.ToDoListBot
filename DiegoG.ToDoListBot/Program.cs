@@ -6,18 +6,32 @@ using Microsoft.Extensions.Hosting;
 using GLV.Shared.ChatBot.EntityFramework;
 using GLV.Shared.ChatBot;
 using TL;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Configuration;
 
 namespace DiegoG.ToDoListBot;
 
 public static class Program
 {
-    public static string AppData { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiegoG.ToDoListBot");
+    public static string AppData { get; } 
+        = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiegoG.ToDoListBot");
+
+    public static IFileProvider AppDataFileProvider { get; }
+        = new PhysicalFileProvider(AppData);
 
     public static async Task Main(string[] args)
     {
         Directory.CreateDirectory(AppData);
         var builder = Host.CreateApplicationBuilder(args);
         builder.Configuration.AddJsonFile("appsettings.Secret.json", true);
+
+        Console.WriteLine($" >!> Reading appsettings.json at {Path.Combine(AppData, "appsettings.json")}");
+
+#if DEBUG
+        builder.Configuration.AddJsonFile(AppDataFileProvider, "appsettings.json", true, false);
+#else
+        builder.Configuration.AddJsonFile(AppDataFileProvider, "appsettings.json", false, false);
+#endif
 
         builder.Services.AddHostedService<ToDoListBotWorker>();
 
