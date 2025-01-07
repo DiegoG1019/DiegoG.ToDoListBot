@@ -13,19 +13,23 @@ namespace DiegoG.ToDoListBot;
 
 public static class Program
 {
+    static Program()
+    {
+        AppData = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiegoG.ToDoListBot"));
+        Directory.CreateDirectory(AppData);
+        AppDataFileProvider = new PhysicalFileProvider(AppData);
+    }
+
     public static string AppData { get; } 
-        = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiegoG.ToDoListBot"));
 
     public static IFileProvider AppDataFileProvider { get; }
-        = new PhysicalFileProvider(AppData);
 
     public static async Task Main(string[] args)
     {
-        Directory.CreateDirectory(AppData);
+        Console.WriteLine($" >!> Reading appsettings.json at {Path.Combine(AppData, "appsettings.json")}");
+
         var builder = Host.CreateApplicationBuilder(args);
         builder.Configuration.AddJsonFile("appsettings.Secret.json", true);
-
-        Console.WriteLine($" >!> Reading appsettings.json at {Path.Combine(AppData, "appsettings.json")}");
 
 #if DEBUG
         builder.Configuration.AddJsonFile(AppDataFileProvider, "appsettings.json", true, false);
