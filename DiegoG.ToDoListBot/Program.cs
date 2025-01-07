@@ -14,7 +14,7 @@ namespace DiegoG.ToDoListBot;
 public static class Program
 {
     public static string AppData { get; } 
-        = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiegoG.ToDoListBot");
+        = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiegoG.ToDoListBot"));
 
     public static IFileProvider AppDataFileProvider { get; }
         = new PhysicalFileProvider(AppData);
