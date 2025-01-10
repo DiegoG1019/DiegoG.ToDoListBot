@@ -42,9 +42,9 @@ public class ToDoListBot : IDisposable
             "ToDoListBot", 
             new Bot(options.Value.BotKey, options.Value.AppId, options.Value.ApiHash, botdb),
             manager,
-            update =>
+            (update, manager) =>
             {
-                updates.Enqueue(new TelegramUpdateContext(update, BotClient!, BotClient!.ConversationIdFactory));
+                updates.Enqueue(new TelegramUpdateContext(update, BotClient!, BotClient!.ConversationIdFactory?.Invoke(update, BotClient)));
                 return Task.CompletedTask;
             }
         );

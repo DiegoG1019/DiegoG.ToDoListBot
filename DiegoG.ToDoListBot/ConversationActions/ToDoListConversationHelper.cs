@@ -3,6 +3,7 @@ using DiegoG.ToDoListBot.Services;
 using GLV.Shared.ChatBot;
 using GLV.Shared.ChatBot.Telegram;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +12,30 @@ namespace DiegoG.ToDoListBot.ConversationActions;
 
 public static class ToDoListConversationHelper
 {
+    public static async Task SetResponseMessage(this ConversationActionBase action, string? text, Keyboard? kr = null, bool deleteMessage = false)
+    {
+        if (action.Context.Data.TryGetValue(ActionConstants.BotMessageContextKey, out var messageIdStr))
+        {
+            try
+            {
+                var mid = long.Parse(messageIdStr);
+                if (deleteMessage)
+                    await action.Bot.DeleteMessage(mid);
+                else
+                {
+                    await action.Bot.EditMessage(mid, text, kr);
+                    return;
+                }
+            }
+            catch(Exception e)
+            {
+                action.SinkLogMessage(2, "An unexpected exception was thrown", -1272357452, e);
+            }
+        }
+
+        action.Context.Data[ActionConstants.BotMessageContextKey] = (await action.Bot.SendMessage(text, kr)).ToString();
+    }
+
     public static bool TryGetIdFromData(this KeyboardResponse kr, string header, out long id)
     {
         Debug.Assert(kr.Data is not null);
@@ -26,7 +51,7 @@ public static class ToDoListConversationHelper
 
     private static Keyboard? WrapUpTaskKeyboard(List<KeyboardRow> keys, long listId)
     {
-        keys.Add(new KeyboardRow(new KeyboardKey("Add Task", $"{Constants.TaskAddHeader}{listId}")));
+        keys.Add(new KeyboardRow(new KeyboardKey("Add Task", $"{ActionConstants.AddTaskHeader}{listId}")));
         return new Keyboard(keys);
     }
 
@@ -38,12 +63,12 @@ public static class ToDoListConversationHelper
 
         row.Add(new KeyboardKey(
             task.Name ?? $"Task #{tid}",
-            $"{Constants.TaskViewHeader}{tid}"
+            $"{ActionConstants.AddTaskHeader}{tid}"
         ));
 
         row.Add(new KeyboardKey(
             task.IsCompleted ? "✔️" : "⭕",
-            $"{Constants.TaskToggleHeader}{tid}"
+            $"{ActionConstants.AddTaskHeader}{tid}"
         ));
 
         rows.Add(new KeyboardRow(row));
@@ -85,6 +110,16 @@ public static class ToDoListConversationHelper
         return WrapUpTaskKeyboard(keys, listId);
     }
 
+    public static Keyboard ActionKeyboard { get; } = new(
+        new KeyboardRow(
+            new KeyboardKey("View Lists", ActionConstants.ViewListsTag)
+        ),
+        new KeyboardRow(
+            new KeyboardKey("Remove List", ActionConstants.RemoveListTag),
+            new KeyboardKey("Add List", ActionConstants.AddListTag)
+        )
+    );
+
     public static async Task<Keyboard?> GetListKeyboard(this ConversationActionBase action)
     {
         var keys = new List<KeyboardRow>();
@@ -100,7 +135,7 @@ public static class ToDoListConversationHelper
         {
             var btn = new KeyboardKey(
                 list.Name ?? $"List #{list.Id}",
-                $"{Constants.ListDataHeader}{list.Id}"
+                $"{ActionConstants.AddTaskHeader}{list.Id}"
             );
 
             keys.Add(new KeyboardRow(btn));

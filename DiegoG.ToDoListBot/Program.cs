@@ -54,6 +54,7 @@ public static class Program
     {
         var manager = ChatBotManager.CreateChatBotWithReflectedActions(
             new ServiceDescriptor(typeof(IConversationStore), typeof(EntityFrameworkConversationStore), ServiceLifetime.Scoped),
+            null!,
             "ToDoListBot",
             null,
             ToDoListBot.UpdateFilter,
@@ -61,7 +62,7 @@ public static class Program
             null,
             (excp, bot, services) =>
             {
-                bot.RespondWithText("I'm sorry, an unexpected error ocurred on my side. Can we try again?");
+                bot.SendMessage("I'm sorry, an unexpected error ocurred on my side. Can we try again?");
                 services.GetService<ILogger<ChatBotManager>>()?.LogError(excp, "An unexpected exception was thrown");
                 return ValueTask.FromResult<ConversationActionEndingKind?>(ConversationActionEndingKind.Finished);
             }
