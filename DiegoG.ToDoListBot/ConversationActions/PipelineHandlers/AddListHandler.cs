@@ -6,7 +6,7 @@ using GLV.Shared.ChatBot.Telegram;
 using Microsoft.EntityFrameworkCore;
 using WTelegram;
 
-namespace DiegoG.ToDoListBot.ConversationActions;
+namespace DiegoG.ToDoListBot.ConversationActions.PipelineHandlers;
 
 public class AddListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipelineMessageHandler
 {
@@ -60,8 +60,8 @@ public class AddListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipelineM
             }
             catch { }
             await PipelineContext.ActiveAction.SetResponseMessage(
-                $"The list '{name}' has been added! What else can I do for you?", 
-                ToDoListKeyboards.ActionKeyboard, 
+                $"The list '{name}' has been added! What else can I do for you?",
+                ToDoListKeyboards.ActionKeyboard,
                 true
             );
         }

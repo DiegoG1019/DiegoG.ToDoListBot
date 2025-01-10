@@ -7,15 +7,27 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 
-namespace DiegoG.ToDoListBot.ConversationActions;
+namespace DiegoG.ToDoListBot;
 
 public static class ToDoListKeyboards
 {
+    public static Keyboard GetTaskInfoKeyboard(long taskId)
+        => new Keyboard(
+            new KeyboardRow(new KeyboardKey("Delete Task", $"{ActionConstants.DeleteTaskHeader}{taskId}"), new KeyboardKey("Edit Task", $"{ActionConstants.EditTaskHeader}{taskId}")),
+            new KeyboardRow(new KeyboardKey("Back to List", $"{ActionConstants.ViewListFromTaskHeader}{taskId}"))
+        );
+
+    public static Keyboard GetListExportKeyboard(long listId)
+        => new Keyboard(
+            new KeyboardRow(new KeyboardKey("Text", $"{ActionConstants.ExportListTextHeader}{listId}"))
+        );
+
     private static Keyboard? WrapUpTaskKeyboard(List<KeyboardRow> keys, long listId)
     {
         keys.Add(new KeyboardRow(
             new KeyboardKey("Add Task", $"{ActionConstants.AddTaskHeader}{listId}"),
-            new KeyboardKey("Back to List", ActionConstants.ViewListsTag)
+            new KeyboardKey("Back to List", ActionConstants.ViewListsTag),
+            new KeyboardKey("Export List", $"{ActionConstants.ExportListHeader}{listId}")
         ));
         return new Keyboard(keys);
     }
@@ -48,7 +60,7 @@ public static class ToDoListKeyboards
             .Where(x => x.ToDoList!.ChatId == id && x.ToDoList!.Tasks!.Any(x => x.Id == snowflake));
 
         long listId;
-        if ((listId = await q.Select(x => x.ToDoListId).FirstOrDefaultAsync()) == default) 
+        if ((listId = await q.Select(x => x.ToDoListId).FirstOrDefaultAsync()) == default)
             return null;
 
         await foreach (var task in q.Select(x => new TaskInfo(x.Name!, x.Id, x.IsCompleted, null)).AsAsyncEnumerable())

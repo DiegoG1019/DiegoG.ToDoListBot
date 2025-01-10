@@ -1,15 +1,17 @@
 ﻿using DiegoG.ToDoListBot.Data;
 using GLV.Shared.ChatBot;
 using GLV.Shared.ChatBot.Pipeline;
+using GLV.Shared.ChatBot.Telegram;
 using GLV.Shared.Data.Identifiers;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Eventing.Reader;
 using TL;
 using WTelegram;
 
-namespace DiegoG.ToDoListBot.ConversationActions;
+namespace DiegoG.ToDoListBot.ConversationActions.PipelineHandlers;
 
 public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipelineMessageHandler
 {
@@ -22,8 +24,8 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
             if (TryGetListId(context.Context, out var listId) is false)
             {
                 await context.ActiveAction.SetResponseMessage(
-                    "Sorry, an error ocurred on my end. Can we try again?", 
-                    ToDoListKeyboards.ActionKeyboard, 
+                    "Sorry, an error ocurred on my end. Can we try again?",
+                    ToDoListKeyboards.ActionKeyboard,
                     true
                 );
             }
@@ -55,6 +57,17 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
             context.Handled = true;
         }
 
+        else if (kr.TryGetIdFromData(ActionConstants.ViewListFromTaskHeader, out var taskid)) // View list from a task id
+        {
+            var kb = await context.ActiveAction.GetListItemsFromTask(taskid);
+            if (kb is null)
+                await context.Bot.AnswerKeyboardResponse(kr, "Could not find the list to view it");
+            else
+                await context.ActiveAction.SetResponseMessage("Here are your tasks!", kb);
+
+            context.Handled = true;
+        }
+
         else if (kr.TryGetIdFromData(ActionConstants.ViewListHeader, out var listid)) // Get List
         {
             var kb = await context.ActiveAction.GetListItems(listid);
@@ -75,37 +88,45 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
             context.Handled = true;
         }
 
-        else if (kr.TryGetIdFromData(ActionConstants.ViewTaskHeader, out var taskid)) // View Task details
+        else if (kr.TryGetIdFromData(ActionConstants.ViewTaskHeader, out taskid)) // View Task details
         {
-            /*
-             * 
-            row.Add(new KeyboardKey(
-                "🗑️",
-                $"{Constants.TaskDeleteHeader}{tid}"
-            ));
+            var snowflake = new Snowflake(taskid);
+            var chatId = context.Update.ConversationId.UnpackTelegramConversationId();
+            var task = await context.Services.GetRequiredService<ToDoListDbContext>()
+                                    .ToDoTasks.FirstOrDefaultAsync(x => x.Id == snowflake && x.ToDoList!.ChatId == chatId);
 
-            row.Add(new KeyboardKey(
-                "📝",
-                $"{Constants.TaskEditHeader}{tid}"
-            ));
-             * 
-             */
-            await context.Bot.AnswerKeyboardResponse(kr, "I'm sorry, task descriptions are not supported yet 😭");
+            if (task is null)
+            {
+                await context.Bot.AnswerKeyboardResponse(kr, "Couldn't find the task 😔");
+
+                var keyb = await context.ActiveAction.GetListItemsFromTask(taskid);
+                if (keyb is not Keyboard kb)
+                    await context.ActiveAction.SetResponseMessage(
+                        $"An error ocurred on my end; can we try something else?",
+                        ToDoListKeyboards.ActionKeyboard
+                    );
+                else
+                    await context.ActiveAction.SetResponseMessage(
+                        $"Sorry, I couldn't find the task; can we try something else?",
+                        kb
+                    );
+            }
+            else
+            {
+                await context.Bot.AnswerKeyboardResponse(kr, "Found it!");
+                await context.ActiveAction.SetResponseMessage(
+                    $"This is the information relating to the task at hand:\n<u>{task.Name}</u>\n\nStatus: {(task.IsCompleted ? "Not yet completed" : "Completed")}", 
+                    ToDoListKeyboards.GetTaskInfoKeyboard(taskid),
+                    html: true
+                );
+            }
 
             context.Handled = true;
         }
 
-        else if (kr.TryGetIdFromData(ActionConstants.EditTaskHeader, out taskid)) // Edit task
+        else if (kr.TryGetIdFromData(ActionConstants.ExportListHeader, out listid))
         {
-            await context.Bot.AnswerKeyboardResponse(kr, "I'm sorry, editing tasks is not supported yet 😔");
-
-            context.Handled = true;
-        }
-
-        else if (kr.TryGetIdFromData(ActionConstants.DeleteTaskHeader, out taskid)) // Delete Task
-        {
-            await context.Bot.AnswerKeyboardResponse(kr, "I'm sorry, deleting tasks is not supported yet 😒");
-
+            await context.ActiveAction.SetResponseMessage("Please select an export format", ToDoListKeyboards.GetListExportKeyboard(listid));
             context.Handled = true;
         }
 

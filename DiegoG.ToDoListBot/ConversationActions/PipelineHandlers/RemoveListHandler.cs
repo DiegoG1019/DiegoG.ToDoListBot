@@ -5,7 +5,7 @@ using GLV.Shared.ChatBot.Telegram;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
-namespace DiegoG.ToDoListBot.ConversationActions;
+namespace DiegoG.ToDoListBot.ConversationActions.PipelineHandlers;
 
 public class RemoveListHandler : IChatBotPipelineKeyboardHandler
 {

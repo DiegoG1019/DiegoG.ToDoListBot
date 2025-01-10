@@ -1,4 +1,5 @@
-﻿using GLV.Shared.ChatBot;
+﻿using DiegoG.ToDoListBot.ConversationActions.PipelineHandlers;
+using GLV.Shared.ChatBot;
 using GLV.Shared.Common;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,8 @@ using WTelegram;
 
 namespace DiegoG.ToDoListBot.ConversationActions;
 
+[ConversationActionPipelineHandler(typeof(ExportListHandler))]
+[ConversationActionPipelineHandler(typeof(TaskHandler))]
 [ConversationActionPipelineHandler(typeof(ViewListHandler))]
 [ConversationActionPipelineHandler(typeof(RemoveListHandler))]
 [ConversationActionPipelineHandler(typeof(AddListHandler))]

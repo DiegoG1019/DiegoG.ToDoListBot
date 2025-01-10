@@ -16,9 +16,9 @@ namespace DiegoG.ToDoListBot;
 public class ToDoListBot : IDisposable
 {
     private readonly ConcurrentQueue<UpdateContext> updates = [];
+    private readonly HashSet<Task> RunningUpdates = [];
 
     private readonly IServiceScope Scope;
-    private readonly ToDoListDbContext Context;
     private readonly ILogger<ToDoListBot> Logger;
     private readonly List<Exception> MarshalledExceptions = [];
 
@@ -36,7 +36,6 @@ public class ToDoListBot : IDisposable
             throw new ArgumentException("AppId must be non-zero", "options.Value.AppId");
 
         Scope = services.CreateScope();
-        Context = Scope.ServiceProvider.GetRequiredService<ToDoListDbContext>();
         var botdb = new SqliteConnection($"Data Source={Path.Combine(Program.AppData, "ToDoListBot.sqlite")}");
         BotClient = new TelegramChatBotClient(
             "ToDoListBot", 
@@ -106,9 +105,16 @@ public class ToDoListBot : IDisposable
             int submitted = 0;
             while (updates.TryDequeue(out var update)) 
             {
-                await ChatBotManager.SubmitUpdate(update);
+                RunningUpdates.Add(ChatBotManager.SubmitUpdate(update));
                 submitted++;
             }
+
+            foreach (var update in RunningUpdates)
+                if (update.IsCompleted)
+                {
+                    await update;
+                    RunningUpdates.Remove(update);
+                }
 
             if (Logger.IsEnabled(LogLevel.Debug))
                 Logger.LogDebug("Submitted {messages} updates", submitted);

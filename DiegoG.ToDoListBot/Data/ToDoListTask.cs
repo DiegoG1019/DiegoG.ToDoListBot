@@ -13,6 +13,16 @@ public class ToDoListTask : IDbModel<ToDoListTask, Snowflake>
     public string? Name { get; set; }
     public bool IsCompleted { get; set; }
     
+    public static string SanitizeName(string name)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        var str = name.Trim();
+        var ind = str.IndexOf('\n');
+        if (ind > 0)
+            str = str[..ind];
+        return str;
+    }
+
     public static void BuildModel(DbContext context, EntityTypeBuilder<ToDoListTask> mb)
     {
         mb.HasKey(x => x.Id);

@@ -1,4 +1,4 @@
-﻿namespace DiegoG.ToDoListBot.ConversationActions;
+﻿namespace DiegoG.ToDoListBot;
 
 public static class ActionConstants
 {
@@ -9,11 +9,16 @@ public static class ActionConstants
 
     public const string BotMessageContextKey = "ck:bot_message";
 
+    public const int EditTaskStepSetName = 3;
     public const int AddListStepSetName = 1;
     public const int AddTaskStepName = 2;
 
     public const string DeleteListDataHeader = "Delete:ListId:";
     public const string ViewListHeader = "View:ListId:";
+    public const string ViewListFromTaskHeader = "ViewList:TaskId:";
+    public const string ExportListHeader = "Export:ListId:";
+
+    public const string ExportListTextHeader = "Export:Text:ListId:";
 
     public const string DeleteTaskHeader = "Delete:TaskId:";
     public const string ViewTaskHeader = "View:TaskId:";
