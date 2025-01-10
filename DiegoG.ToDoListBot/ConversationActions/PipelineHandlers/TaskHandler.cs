@@ -81,9 +81,11 @@ public class TaskHandler : IChatBotPipelineHandler
                         ToDoListKeyboards.ActionKeyboard
                     );
                 }
+
+                await context.Bot.TryDeleteMessage(message.MessageId);
             }
             else
-                await context.ActiveAction.SetResponseMessage("Sorry, an error ocurred on my end while trying to edit the task; can we try again?", ToDoListKeyboards.ActionKeyboard);
+                await context.ActiveAction.SetResponseMessage("Sorry, an error ocurred on my end while trying to edit the task; can we try again?", ToDoListKeyboards.ActionKeyboard, true);
 
             SetEditTaskId(context);
             context.Context.ResetState();
