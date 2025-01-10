@@ -5,6 +5,7 @@ public static class ActionConstants
     public const string AddListTag = "cmd:AddList";
     public const string RemoveListTag = "cmd:RemoveList";
     public const string ViewListsTag = "cmd:ViewLists";
+    public const string ViewMainMenuTag = "cmd:MainMenu";
 
     public const string BotMessageContextKey = "ck:bot_message";
 

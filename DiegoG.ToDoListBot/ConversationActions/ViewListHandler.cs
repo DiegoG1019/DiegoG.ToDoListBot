@@ -23,13 +23,14 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
             {
                 await context.ActiveAction.SetResponseMessage(
                     "Sorry, an error ocurred on my end. Can we try again?", 
-                    ToDoListConversationHelper.ActionKeyboard, 
+                    ToDoListKeyboards.ActionKeyboard, 
                     true
                 );
             }
 
             await AddTaskItems(context, message.Text.ReplaceLineEndings("\0\0!\0\0").Split("\0\0!\0\0"));
             await context.ActiveAction.SetResponseMessage("Tasks added!", await context.ActiveAction.GetListItems(listId));
+            await context.Bot.TryDeleteMessage(message.MessageId);
             context.Context.ResetState();
             context.Handled = true;
         }
@@ -37,7 +38,24 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
 
     public async Task TryProcessKeyboardResponse(PipelineContext context, KeyboardResponse kr)
     {
-        if (kr.TryGetIdFromData(ActionConstants.ViewListHeader, out var listid)) // Get List
+        if (kr.MatchDataTag(ActionConstants.ViewMainMenuTag)) // Return to main menu
+        {
+            await context.ActiveAction.SetResponseMessage("Here are your lists!", ToDoListKeyboards.ActionKeyboard);
+            context.Handled = true;
+        }
+
+        else if (kr.MatchDataTag(ActionConstants.ViewListsTag)) // View lists
+        {
+            var kb = await context.ActiveAction.GetListKeyboard();
+            if (kb is null)
+                await context.Bot.AnswerKeyboardResponse(kr, "There are no available lists in this chat, sorry!");
+            else
+                await context.ActiveAction.SetResponseMessage("Here are your tasks!", kb);
+
+            context.Handled = true;
+        }
+
+        else if (kr.TryGetIdFromData(ActionConstants.ViewListHeader, out var listid)) // Get List
         {
             var kb = await context.ActiveAction.GetListItems(listid);
             if (kb is null)
@@ -102,8 +120,18 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
                 await context.Bot.AnswerKeyboardResponse(kr, "Could not find the task, sorry 😔");
 
             var kb = await context.ActiveAction.GetListItemsFromTask(taskid, db);
-            if (kb is not Keyboard keyboard)
+
+            if (kb is Keyboard keyboard)
+            {
                 await context.ActiveAction.SetResponseMessage("Here are your tasks!", kb);
+                await context.Bot.AnswerKeyboardResponse(kr, "Task toggled!");
+            }
+            else
+            {
+                await context.ActiveAction.SetResponseMessage("An error ocurred while trying to re-display the list. Please try again.", ToDoListKeyboards.ActionKeyboard);
+
+                await context.Bot.AnswerKeyboardResponse(kr, "Task toggled!");
+            }
 
             context.Handled = true;
         }

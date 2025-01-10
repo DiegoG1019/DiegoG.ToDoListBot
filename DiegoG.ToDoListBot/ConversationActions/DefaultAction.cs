@@ -32,7 +32,7 @@ public class DefaultAction : ConversationActionBase
 
             if (Bot.IsReferringToBot(msg.Text))
             {
-                await this.SetResponseMessage("What can I do for you?", ToDoListConversationHelper.ActionKeyboard, true);
+                await this.SetResponseMessage("What can I do for you?", ToDoListKeyboards.ActionKeyboard, true);
                 return ConversationActionEndingKind.Finished;
             }
         }

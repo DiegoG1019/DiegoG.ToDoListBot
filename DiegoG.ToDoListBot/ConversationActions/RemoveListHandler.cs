@@ -13,12 +13,12 @@ public class RemoveListHandler : IChatBotPipelineKeyboardHandler
     {
         if (kr.MatchDataTag(ActionConstants.RemoveListTag))
         {
-            var kb = await context.ActiveAction.GetListKeyboard();
+            var kb = await context.ActiveAction.GetListKeyboard(ActionConstants.DeleteListDataHeader);
             if (kb is not Keyboard keyboard)
             {
                 await context.ActiveAction.SetResponseMessage(
                     "There are no lists to remove. What else can I do for you?",
-                    ToDoListConversationHelper.ActionKeyboard
+                    ToDoListKeyboards.ActionKeyboard
                 );
             }
             else
@@ -40,7 +40,7 @@ public class RemoveListHandler : IChatBotPipelineKeyboardHandler
                 Debug.Assert(changes == 1);
                 context.Context.ResetState();
                 await context.Bot.AnswerKeyboardResponse(kr, "List deleted!");
-                await context.ActiveAction.SetResponseMessage("What else can I do for you?", ToDoListConversationHelper.ActionKeyboard);
+                await context.ActiveAction.SetResponseMessage("What else can I do for you?", ToDoListKeyboards.ActionKeyboard);
             }
 
             context.Handled = true;
