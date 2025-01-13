@@ -44,7 +44,7 @@ public static class ToDoListKeyboards
         ));
 
         row.Add(new KeyboardKey(
-            task.IsCompleted ? "✅" : "🅾️",
+            task.IsCompleted ? "✅" : "⭕",
             $"{ActionConstants.ToggleTaskHeader}{tid}"
         ));
 
