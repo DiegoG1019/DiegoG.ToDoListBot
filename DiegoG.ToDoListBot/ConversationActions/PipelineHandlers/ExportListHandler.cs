@@ -31,14 +31,17 @@ public class ExportListHandler : IChatBotPipelineKeyboardHandler
             else
             {
                 if (todolist.Tasks?.Any() is not true)
-                    await context.Bot.SendMessage($"<u>{todolist.Name}</u>\n\n<i>There are no tasks in this list...</i>", html: true);
+                    await context.Bot.SendMessage(
+                        $"<u>{todolist.Name}</u>\n\n<i>There are no tasks in this list...</i>",
+                        options: MessageOptions.HtmlContent
+                    );
                 else
                 {
                     StringBuilder sb = new(todolist.Tasks.Count * 100);
                     foreach (var task in todolist.Tasks)
                         sb.AppendLine(task.Name);
 
-                    await context.Bot.SendMessage($"<u>{todolist.Name}</u>\n\n{sb}", html: true);
+                    await context.Bot.SendMessage($"<u>{todolist.Name}</u>\n\n{sb}", options: MessageOptions.HtmlContent);
                 }
 
                 await context.ActiveAction.SetResponseMessage(

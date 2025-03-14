@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLV.Shared.ChatBot.EntityFr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLV.Shared.ChatBot.Telegram", "..\GLV.Shared\GLV.Shared.ChatBot.Telegram\GLV.Shared.ChatBot.Telegram.csproj", "{C4208376-DF3D-45C7-95F3-3D6CFD07B123}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiegoG.ToDoListBot.Sandox", "DiegoG.ToDoListBot.Sandox\DiegoG.ToDoListBot.Sandox.csproj", "{4BFC05DC-C5FD-4DB1-9972-E78F0D8AF60C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{C4208376-DF3D-45C7-95F3-3D6CFD07B123}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4208376-DF3D-45C7-95F3-3D6CFD07B123}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4208376-DF3D-45C7-95F3-3D6CFD07B123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BFC05DC-C5FD-4DB1-9972-E78F0D8AF60C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BFC05DC-C5FD-4DB1-9972-E78F0D8AF60C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BFC05DC-C5FD-4DB1-9972-E78F0D8AF60C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BFC05DC-C5FD-4DB1-9972-E78F0D8AF60C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,5 +86,8 @@ Global
 		{93101943-E245-4FC6-9ECF-DF3FADB57F98} = {AA65A011-AD35-47FA-84B0-17FA6B31754E}
 		{0A7EDCC2-5D6A-4171-AC38-6E32867A4980} = {AA65A011-AD35-47FA-84B0-17FA6B31754E}
 		{C4208376-DF3D-45C7-95F3-3D6CFD07B123} = {AA65A011-AD35-47FA-84B0-17FA6B31754E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {021B5017-E7FE-4F52-906A-DD52B8B66B0D}
 	EndGlobalSection
 EndGlobal

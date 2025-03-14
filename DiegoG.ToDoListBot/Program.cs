@@ -64,7 +64,7 @@ public static class Program
             {
                 bot.SendMessage("I'm sorry, an unexpected error ocurred on my side. Can we try again?");
                 services.GetService<ILogger<ChatBotManager>>()?.LogError(excp, "An unexpected exception was thrown");
-                return ValueTask.FromResult<ConversationActionEndingKind?>(ConversationActionEndingKind.Finished);
+                return ValueTask.CompletedTask;
             }
         );
         manager.SinkLogMessageAction = (lvl, msg, id, excp, services) =>

@@ -117,7 +117,7 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
                 await context.ActiveAction.SetResponseMessage(
                     $"This is the information relating to the task at hand:\n <u>{task.Name}</u> \n\nStatus: {(task.IsCompleted ? "Completed" : "Not yet completed")}", 
                     ToDoListKeyboards.GetTaskInfoKeyboard(taskid),
-                    html: true
+                    options: MessageOptions.HtmlContent
                 );
             }
 
