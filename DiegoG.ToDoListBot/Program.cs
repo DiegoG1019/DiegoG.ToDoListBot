@@ -43,6 +43,8 @@ public static class Program
         builder.Services.AddScoped<DbContext, ToDoListDbContext>();
         builder.Services.RegisterDecoratedOptions(builder.Configuration);
         builder.Services.AddSingleton<ToDoListBot>();
+        builder.Services.AddScoped<IConversationStore, EntityFrameworkConversationStore>();
+        builder.Services.AddSingleton<IConversationStoreCache>(s => new ConversationStoreCache(TimeSpan.FromHours(5)));
         InitChatBotManager(builder.Services);
 
         var host = builder.Build();
@@ -53,7 +55,6 @@ public static class Program
     private static void InitChatBotManager(IServiceCollection collection)
     {
         var manager = ChatBotManager.CreateChatBotWithReflectedActions(
-            new ServiceDescriptor(typeof(IConversationStore), typeof(EntityFrameworkConversationStore), ServiceLifetime.Scoped),
             null!,
             "ToDoListBot",
             null,
@@ -67,7 +68,7 @@ public static class Program
                 return ValueTask.CompletedTask;
             }
         );
-        manager.SinkLogMessageAction = (lvl, msg, id, excp, services) =>
+        manager.SinkLogMessageAction = (lvl, msg, id, platform, botId, excp, services) =>
         {
             services.GetService<ILogger<ChatBotManager>>()?.Log((LogLevel)lvl, id, excp, msg);
         };
