@@ -16,7 +16,8 @@ public static class Program
     static Program()
     {
         AppData = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiegoG.ToDoListBot"));
-        Directory.CreateDirectory(AppData);
+        if (Directory.Exists(AppData) is false)
+            Directory.CreateDirectory(AppData);
         AppDataFileProvider = new PhysicalFileProvider(AppData);
     }
 
