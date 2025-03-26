@@ -100,16 +100,13 @@ public class TaskHandler : IChatBotPipelineHandler
         if (taskid == default)
             context.Context.Data.Remove(TaskIdDataKey);
         else
-            context.Context.Data[TaskIdDataKey] = taskid.ToString();
+            context.Context.Data.Set(TaskIdDataKey, taskid);
     }
 
     private static bool GetEditTaskId(PipelineContext context, [MaybeNullWhen(false)] out long taskid)
     {
-        if (context.Context.Data.TryGetValue(TaskIdDataKey, out var taskid_str))
-        {
-            taskid = long.Parse(taskid_str);
+        if (context.Context.Data.TryGetValue<long>(TaskIdDataKey, out taskid) is true)
             return true;
-        }
 
         taskid = default;
         return false;

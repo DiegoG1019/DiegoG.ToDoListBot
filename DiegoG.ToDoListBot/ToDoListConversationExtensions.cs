@@ -13,11 +13,10 @@ public static class ToDoListConversationExtensions
         MessageOptions options = default
     )
     {
-        if (action.Context.Data.TryGetValue(ActionConstants.BotMessageContextKey, out var messageIdStr))
+        if (action.Context.Data.TryGetValue<long>(ActionConstants.BotMessageContextKey, out var mid) is true)
         {
             try
             {
-                var mid = long.Parse(messageIdStr);
                 if (deleteMessage)
                     await action.Bot.DeleteMessage(mid);
                 else
@@ -32,7 +31,7 @@ public static class ToDoListConversationExtensions
             }
         }
 
-        action.Context.Data[ActionConstants.BotMessageContextKey] = (await action.Bot.SendMessage(text, kr, options: options)).ToString();
+        action.Context.Data.Set(ActionConstants.BotMessageContextKey, await action.Bot.SendMessage(text, kr, options: options));
     }
 
     public static bool TryGetIdFromData(this KeyboardResponse kr, string header, out long id)

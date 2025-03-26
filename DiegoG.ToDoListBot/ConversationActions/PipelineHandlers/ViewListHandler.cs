@@ -160,11 +160,8 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
 
     private static bool TryGetListId(ConversationContext context, out long listId)
     {
-        if (context.Data.TryGetValue(ListIdDataKey, out var listId_str))
-        {
-            listId = long.Parse(listId_str);
+        if (context.Data.TryGetValue<long>(ListIdDataKey, out listId) is true)
             return true;
-        }
 
         listId = default;
         return false;
@@ -175,15 +172,14 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
         if (listId == default)
             context.Data.Remove(ListIdDataKey);
         else
-            context.Data[ListIdDataKey] = listId.ToString();
+            context.Data.Set(ListIdDataKey, listId);
     }
 
     private static async Task AddTaskItems(PipelineContext pipeline, params string[] tasks)
     {
-        if (pipeline.Context.Data.TryGetValue(ListIdDataKey, out var id_str) is false)
+        if (pipeline.Context.Data.TryGetValue<long>(ListIdDataKey, out var listId) is false)
             Debug.Fail("Tried to add a task to a list with no set list id in Data");
 
-        var listId = long.Parse(id_str);
         var db = pipeline.Services.GetRequiredService<ToDoListDbContext>();
 
         for (int i = 0; i < tasks.Length; i++)
