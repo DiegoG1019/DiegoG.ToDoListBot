@@ -41,10 +41,14 @@ public class ToDoListBot : IDisposable
             "ToDoListBot", 
             new Bot(options.Value.BotKey, options.Value.AppId, options.Value.ApiHash, botdb),
             manager,
-            (update, manager) =>
+            async (update, manager) =>
             {
-                updates.Enqueue(new TelegramUpdateContext(update, BotClient!, BotClient!.ConversationIdFactory?.Invoke(update, BotClient)));
-                return Task.CompletedTask;
+                var context = TelegramChatBotClient.PrepareDefaultUpdateContext(update, BotClient!, null);
+                var action = await manager.CheckIfCommand(context);
+                if (action is not null)
+                    context.JumpToActiveAction = action.ActionName;
+
+                updates.Enqueue(context);
             }
         );
         Logger = logger;
