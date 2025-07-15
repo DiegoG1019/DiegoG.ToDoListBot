@@ -1,5 +1,6 @@
 ﻿using GLV.Shared.ChatBot;
 using System.Diagnostics;
+using Cronos;
 
 namespace DiegoG.ToDoListBot;
 
@@ -32,6 +33,22 @@ public static class ToDoListConversationExtensions
         }
 
         action.Context.Data.Set(ActionConstants.BotMessageContextKey, await action.Bot.SendMessage(text, kr, options: options));
+    }
+
+    public static bool TryGetCronNextReminder(this string? cron, out DateTimeOffset nextReminder)
+    {
+        if (CronExpression.TryParse(cron, out var expr))
+        {
+            var rmd = expr.GetNextOccurrence(DateTime.UtcNow);
+            if (rmd is DateTime dt)
+            {
+                nextReminder = dt.ToLocalTime();
+                return true;
+            }
+        }
+
+        nextReminder = default;
+        return false;
     }
 
     public static bool TryGetIdFromData(this KeyboardResponse kr, string header, out long id)

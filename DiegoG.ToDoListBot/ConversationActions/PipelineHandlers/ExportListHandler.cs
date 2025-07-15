@@ -44,9 +44,10 @@ public class ExportListHandler : IChatBotPipelineKeyboardHandler
                     await context.Bot.SendMessage($"<u>{todolist.Name}</u>\n\n{sb}", options: MessageOptions.HtmlContent);
                 }
 
+                var (keyb, cron) = await context.ActiveAction.GetListItems(listid);
                 await context.ActiveAction.SetResponseMessage(
                     "Succesfully exported! See the message above!",
-                    await context.ActiveAction.GetListItems(listid) ?? ToDoListKeyboards.ActionKeyboard,
+                    keyb ?? ToDoListKeyboards.ActionKeyboard,
                     true
                 );
             }

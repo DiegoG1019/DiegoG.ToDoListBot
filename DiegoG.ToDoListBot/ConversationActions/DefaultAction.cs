@@ -17,6 +17,7 @@ namespace DiegoG.ToDoListBot.ConversationActions;
 [ConversationActionPipelineHandler(typeof(ViewListHandler))]
 [ConversationActionPipelineHandler(typeof(RemoveListHandler))]
 [ConversationActionPipelineHandler(typeof(AddListHandler))]
+[ConversationActionPipelineHandler(typeof(EditListReminderHandler))]
 [ConversationAction(true)]
 public class DefaultAction : ConversationActionBase
 {

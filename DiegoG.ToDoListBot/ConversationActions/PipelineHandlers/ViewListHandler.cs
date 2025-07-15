@@ -6,8 +6,8 @@ using GLV.Shared.Data.Identifiers;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Eventing.Reader;
+using Humanizer;
 using TL;
 using WTelegram;
 
@@ -24,14 +24,19 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
             if (TryGetListId(context.Context, out var listId) is false)
             {
                 await context.ActiveAction.SetResponseMessage(
-                    "Sorry, an error ocurred on my end. Can we try again?",
+                    "Sorry, an error occurred on my end. Can we try again?",
                     ToDoListKeyboards.ActionKeyboard,
                     true
                 );
             }
 
+            var (keyb, cron) = await context.ActiveAction.GetListItems(listId);
+            var msg = cron.TryGetCronNextReminder(out var rm)
+                ? $"Tasks added!\n\nThis list's next reminder will ring in <i>{rm.Humanize()}</i>"
+                : "Tasks added!";
+
             await AddTaskItems(context, message.Text.ReplaceLineEndings("\0\0!\0\0").Split("\0\0!\0\0"));
-            await context.ActiveAction.SetResponseMessage("Tasks added!", await context.ActiveAction.GetListItems(listId));
+            await context.ActiveAction.SetResponseMessage(msg, keyb);
             await context.Bot.TryDeleteMessage(message.MessageId);
             context.Context.ResetState();
             context.Handled = true;
@@ -70,11 +75,17 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
 
         else if (kr.TryGetIdFromData(ActionConstants.ViewListHeader, out var listid)) // Get List
         {
-            var kb = await context.ActiveAction.GetListItems(listid);
-            if (kb is null)
+            var (keyb, cron) = await context.ActiveAction.GetListItems(listid);
+
+            if (keyb is null)
                 await context.Bot.AnswerKeyboardResponse(kr, "Could not find the list to view it");
             else
-                await context.ActiveAction.SetResponseMessage("Here are your tasks!", kb);
+            {
+                var msg = cron.TryGetCronNextReminder(out var rm)
+                    ? $"Here are your tasks!\n\n<i>This list's next reminder will ring in {rm.Humanize()}</i>"
+                    : "Here are your tasks!";
+                await context.ActiveAction.SetResponseMessage(msg, keyb, options: MessageOptions.HtmlContent);
+            }
 
             context.Handled = true;
         }

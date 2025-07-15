@@ -42,7 +42,9 @@ public static class Program
 
         builder.Services.ConfigureGLVDatabase<ToDoListDbContext>(builder);
         builder.Services.AddScoped<DbContext, ToDoListDbContext>();
+        builder.Services.AddWorkQueue();
         builder.Services.RegisterDecoratedOptions(builder.Configuration);
+        builder.Services.RegisterDecoratedWorkers();
         builder.Services.AddSingleton<ToDoListBot>();
         builder.Services.AddScoped<IConversationStore, EntityFrameworkConversationStore>();
         builder.Services.AddSingleton<IConversationStoreCache>(s => new ConversationStoreCache(TimeSpan.FromHours(5)));

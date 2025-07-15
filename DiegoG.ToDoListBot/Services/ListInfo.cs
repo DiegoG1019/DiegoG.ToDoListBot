@@ -2,7 +2,9 @@
 
 namespace DiegoG.ToDoListBot.Services;
 
-public record class TaskInfo(string? Name, Snowflake Id, bool IsCompleted, string? Description);
+public record class ListItemsInfo(string? Cron, IEnumerable<TaskInfo> Tasks);
+
+public record struct TaskInfo(string? Name, Snowflake Id, bool IsCompleted, string? Description);
 
 public class ListInfo(string? name, long id)
 {

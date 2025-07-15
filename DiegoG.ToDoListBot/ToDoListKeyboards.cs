@@ -27,7 +27,8 @@ public static class ToDoListKeyboards
         keys.Add(new KeyboardRow(
             new KeyboardKey("Add Task", $"{ActionConstants.AddTaskHeader}{listId}"),
             new KeyboardKey("Back to List", ActionConstants.ViewListsTag),
-            new KeyboardKey("Export List", $"{ActionConstants.ExportListHeader}{listId}")
+            new KeyboardKey("Export List", $"{ActionConstants.ExportListHeader}{listId}"),
+            new KeyboardKey("Set reminder", $"{ActionConstants.EditListReminder}{listId}")
         ));
         return new Keyboard(keys);
     }
@@ -69,7 +70,7 @@ public static class ToDoListKeyboards
         return WrapUpTaskKeyboard(keys, listId);
     }
 
-    public static async Task<Keyboard?> GetListItems(this ConversationActionBase action, long listId, ToDoListDbContext? context = null)
+    public static async Task<(Keyboard? keyboard, string? cron)> GetListItems(this ConversationActionBase action, long listId, ToDoListDbContext? context = null)
     {
         var keys = new List<KeyboardRow>();
         var id = action.Context.ConversationId.UnpackTelegramConversationId();
@@ -77,14 +78,16 @@ public static class ToDoListKeyboards
             .Where(x => x.ChatId == id && x.Id == listId);
 
         if (await q.AnyAsync() is false)
-            return null;
+            return default;
 
         q = q.Where(x => x.Tasks != null);
 
-        await foreach (var task in q.SelectMany(x => x.Tasks!).Select(x => new TaskInfo(x.Name!, x.Id, x.IsCompleted, null)).AsAsyncEnumerable())
-            AppendTaskRow(keys, task);
+        var list = await q.Select(list => new ListItemsInfo(
+                list.CronExpression,
+                list.Tasks!.Select(task => new TaskInfo(task.Name!, task.Id, task.IsCompleted, null))))
+            .SingleOrDefaultAsync();
 
-        return WrapUpTaskKeyboard(keys, listId);
+        return list is null ? default : (WrapUpTaskKeyboard(keys, listId), list.Cron);
     }
 
     public static Keyboard ActionKeyboard { get; } = new(
