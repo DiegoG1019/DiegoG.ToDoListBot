@@ -19,7 +19,7 @@ public class ReminderWorker(ToDoListBot bot, IServiceProvider services, ILogger<
 
         while (stoppingToken.IsCancellationRequested == false)
         {
-            var dtnow = DateTimeOffset.Now;
+            var dtnow = DateTimeOffset.UtcNow;
             using (var scope = services.CreateScope().GetRequiredService(out ToDoListDbContext db))
             {
                 await foreach (var list in db.ToDoLists

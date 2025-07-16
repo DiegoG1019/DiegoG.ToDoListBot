@@ -30,8 +30,10 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
                 );
             }
 
+            var cc = context.Update.GetRequiredFeature<ChatConfig>();
+
             var (keyb, cron) = await context.ActiveAction.GetListItems(listId);
-            var msg = cron.TryGetCronNextReminder(out var rm)
+            var msg = cron.TryGetCronNextReminder(cc.UtcOffset, out var rm)
                 ? $"Tasks added!\n\nThis list's next reminder will ring in <i>{rm.Humanize()}</i>"
                 : "Tasks added!";
 
@@ -81,7 +83,9 @@ public class ViewListHandler : IChatBotPipelineKeyboardHandler, IChatBotPipeline
                 await context.Bot.AnswerKeyboardResponse(kr, "Could not find the list to view it");
             else
             {
-                var msg = cron.TryGetCronNextReminder(out var rm)
+                var cc = context.Update.GetRequiredFeature<ChatConfig>();
+
+                var msg = cron.TryGetCronNextReminder(cc.UtcOffset, out var rm)
                     ? $"Here are your tasks!\n\n<i>This list's next reminder will ring in {rm.Humanize()}</i>"
                     : "Here are your tasks!";
                 await context.ActiveAction.SetResponseMessage(msg, keyb, options: MessageOptions.HtmlContent);

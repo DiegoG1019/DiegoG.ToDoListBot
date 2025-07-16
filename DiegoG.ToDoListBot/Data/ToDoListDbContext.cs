@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace DiegoG.ToDoListBot.Data;
 public class ToDoListDbContext(DbContextOptions<ToDoListDbContext> options) : DbContext(options)
 {
+    public DbSet<ChatConfig> ChatConfigs => Set<ChatConfig>();
     public DbSet<ToDoList> ToDoLists => Set<ToDoList>();
     public DbSet<ToDoListTask> ToDoTasks => Set<ToDoListTask>();
     public DbSet<ConversationContextPacked> ConversationContexts => Set<ConversationContextPacked>();

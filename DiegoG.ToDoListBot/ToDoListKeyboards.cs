@@ -101,6 +101,9 @@ public static class ToDoListKeyboards
         new KeyboardRow(
             new KeyboardKey("Remove List", ActionConstants.RemoveListTag),
             new KeyboardKey("Add List", ActionConstants.AddListTag)
+        ),
+        new KeyboardRow(
+            new KeyboardKey("TimeZone", ActionConstants.SetTimeZone)
         )
     );
 

@@ -35,14 +35,14 @@ public static class ToDoListConversationExtensions
         action.Context.Data.Set(ActionConstants.BotMessageContextKey, await action.Bot.SendMessage(text, kr, options: options));
     }
 
-    public static bool TryGetCronNextReminder(this string? cron, out DateTimeOffset nextReminder)
+    public static bool TryGetCronNextReminder(this string? cron, TimeSpan utcOffset, out DateTimeOffset nextReminder)
     {
         if (string.IsNullOrWhiteSpace(cron) is false && CronExpression.TryParse(cron, out var expr))
         {
-            var rmd = expr.GetNextOccurrence(DateTime.UtcNow);
+            var rmd = expr.GetNextOccurrence(DateTime.UtcNow + utcOffset);
             if (rmd is DateTime dt)
             {
-                nextReminder = dt.ToLocalTime();
+                nextReminder = new(new DateTime(DateOnly.FromDateTime(dt), TimeOnly.FromDateTime(dt), DateTimeKind.Unspecified), utcOffset);
                 return true;
             }
         }

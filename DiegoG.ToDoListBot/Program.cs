@@ -51,7 +51,7 @@ public static class Program
         InitChatBotManager(builder.Services);
 
         var host = builder.Build();
-        await InitDatabase(host.Services);
+        await host.Services.InitDatabase<ToDoListDbContext>();
         await host.RunAsync();
     }
 
@@ -76,11 +76,5 @@ public static class Program
             services.GetService<ILogger<ChatBotManager>>()?.Log((LogLevel)lvl, id, excp, msg);
         };
         collection.AddSingleton(manager);
-    }
-
-    private static async Task InitDatabase(IServiceProvider services)
-    {
-        services.CreateScope().GetRequiredService<ToDoListDbContext>(out var context);
-        await context.Database.EnsureCreatedAsync();
     }
 }
