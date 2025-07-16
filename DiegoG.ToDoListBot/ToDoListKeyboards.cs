@@ -87,7 +87,11 @@ public static class ToDoListKeyboards
                 list.Tasks!.Select(task => new TaskInfo(task.Name!, task.Id, task.IsCompleted, null))))
             .SingleOrDefaultAsync();
 
-        return list is null ? default : (WrapUpTaskKeyboard(keys, listId), list.Cron);
+        if (list is null) return default;
+        foreach (var task in list.Tasks) 
+            AppendTaskRow(keys, task);
+
+        return (WrapUpTaskKeyboard(keys, listId), list.Cron);
     }
 
     public static Keyboard ActionKeyboard { get; } = new(

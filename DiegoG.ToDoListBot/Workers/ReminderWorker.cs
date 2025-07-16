@@ -10,9 +10,12 @@ namespace DiegoG.ToDoListBot.Workers;
 [RegisterWorker]
 public class ReminderWorker(ToDoListBot bot, IServiceProvider services, ILogger<ReminderWorker> logger) : BackgroundService
 {
+    public static TimeSpan PollingRate { get; } = TimeSpan.FromSeconds(10);
+    
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         PriorityQueue<ToDoList, DateTimeOffset> upcomingTickets = new();
+        Stopwatch stopwatch = new();
 
         while (stoppingToken.IsCancellationRequested == false)
         {
@@ -23,12 +26,13 @@ public class ReminderWorker(ToDoListBot bot, IServiceProvider services, ILogger<
                                    .Where(x => string.IsNullOrWhiteSpace(x.CronExpression) == false)
                                    .AsAsyncEnumerable()
                                    .WithCancellation(stoppingToken))
-                    if (list.TryGetNextReminder(out var nextReminder) && (nextReminder - dtnow) <= TimeSpan.FromSeconds(1))
+                    if (list.TryGetNextReminder(out var nextReminder) && (nextReminder - dtnow) <= PollingRate)
                         upcomingTickets.Enqueue(list, nextReminder); 
                 // nextReminder is at a later date. If it is negative, then it should have already been triggered.
                 // Since cronos accounts for already-past cron triggers, we absolutely should shove this up on the queue
             }
 
+            stopwatch.Restart();
             while (upcomingTickets.TryDequeue(out var element, out var trigger))
             {
                 Debug.Assert(element is not null);
@@ -40,9 +44,10 @@ public class ReminderWorker(ToDoListBot bot, IServiceProvider services, ILogger<
                 }
 
                 await SendReminder(element);
-            }   
-            
-            await Task.Delay(1015, stoppingToken);
+            }
+
+            var elp = stopwatch.Elapsed;
+            if ((PollingRate - elp) > TimeSpan.FromMilliseconds(20)) await Task.Delay(PollingRate - elp, stoppingToken);
             // Once we have all the reminders that will trigger in the next second, we send them all at once and wait a second before querying again.
             // The result is effectively the same as these are merely reminders; and allows a simple mechanism that doesn't poll too much and keeps up to date
         }

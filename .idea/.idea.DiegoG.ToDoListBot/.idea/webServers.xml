@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="3b98d6e6-9726-48d2-ab65-484fed56d274" name="RaspiZero">
+        <fileTransfer rootFolder="/home/diegog/publish/todolistbot" accessType="SFTP" host="pi-valndiego-zero.local" port="22" sshConfigId="10d346ad-070e-47ed-9125-0ec393611285" sshConfig="diegog@pi-valndiego-zero.local:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" connections="1" passiveMode="true" shareSSLContext="true" isUseSudo="true" />
+          </advancedOptions>
+        </fileTransfer>
+        <option name="numberOfConnections" value="1" />
+      </webServer>
+    </option>
+  </component>
+</project>

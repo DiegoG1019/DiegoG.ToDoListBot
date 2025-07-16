@@ -37,7 +37,7 @@ public static class ToDoListConversationExtensions
 
     public static bool TryGetCronNextReminder(this string? cron, out DateTimeOffset nextReminder)
     {
-        if (CronExpression.TryParse(cron, out var expr))
+        if (string.IsNullOrWhiteSpace(cron) is false && CronExpression.TryParse(cron, out var expr))
         {
             var rmd = expr.GetNextOccurrence(DateTime.UtcNow);
             if (rmd is DateTime dt)
