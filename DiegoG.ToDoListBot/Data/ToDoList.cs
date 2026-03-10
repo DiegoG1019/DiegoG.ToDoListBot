@@ -42,12 +42,12 @@ public class ToDoList : IDbModel<ToDoList, long>
         return false;
     }
 
-    public static void BuildModel(DbContext context, EntityTypeBuilder<ToDoList> mb)
+    public static void BuildModel(DbContext context, ModelBuilder mb, EntityTypeBuilder<ToDoList> eb)
     {
-        mb.HasKey(x => x.Id);
-        mb.Property(x => x.Id).ValueGeneratedOnAdd();
-        mb.HasMany(x => x.Tasks).WithOne(x => x.ToDoList).HasForeignKey(x => x.ToDoListId);
-        mb.HasOne(x => x.ChatConfig).WithMany(x => x.Lists).HasForeignKey(x => x.ChatId);
-        mb.Navigation(x => x.ChatConfig).AutoInclude(true);
+        eb.HasKey(x => x.Id);
+        eb.Property(x => x.Id).ValueGeneratedOnAdd();
+        eb.HasMany(x => x.Tasks).WithOne(x => x.ToDoList).HasForeignKey(x => x.ToDoListId);
+        eb.HasOne(x => x.ChatConfig).WithMany(x => x.Lists).HasForeignKey(x => x.ChatId);
+        eb.Navigation(x => x.ChatConfig).AutoInclude(true);
     }
 }

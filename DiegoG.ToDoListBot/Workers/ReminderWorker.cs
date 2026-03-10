@@ -2,6 +2,7 @@ using System.Diagnostics;
 using DiegoG.ToDoListBot.Data;
 using GLV.Shared.ChatBot;
 using GLV.Shared.ChatBot.Telegram;
+using GLV.Shared.DependencyInjection;
 using GLV.Shared.Hosting;
 using Microsoft.EntityFrameworkCore;
 

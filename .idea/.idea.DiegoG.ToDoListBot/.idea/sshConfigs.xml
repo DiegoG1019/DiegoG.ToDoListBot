@@ -2,7 +2,7 @@
 <project version="4">
   <component name="SshConfigs">
     <configs>
-      <sshConfig authType="PASSWORD" connectionConfig="{&quot;serverAliveInterval&quot;:300}" host="pi-valndiego-zero.local" id="10d346ad-070e-47ed-9125-0ec393611285" port="22" nameFormat="DESCRIPTIVE" username="diegog" useOpenSSHConfig="true" />
+      <sshConfig authType="PASSWORD" connectionConfig="{&quot;serverAliveInterval&quot;:300}" host="192.168.20.25" id="10d346ad-070e-47ed-9125-0ec393611285" port="22" nameFormat="DESCRIPTIVE" username="diegog" useOpenSSHConfig="true" />
     </configs>
   </component>
 </project>

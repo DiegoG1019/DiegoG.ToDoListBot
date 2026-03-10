@@ -14,8 +14,8 @@ public class ChatConfig : IDbModel<ChatConfig, long>
     
     long IKeyed<ChatConfig, long>.Id => this.ChatId;
     
-    public static void BuildModel(DbContext context, EntityTypeBuilder<ChatConfig> mb)
+    public static void BuildModel(DbContext context, ModelBuilder mb, EntityTypeBuilder<ChatConfig> eb)
     {
-        mb.HasKey(x => x.ChatId);
+        eb.HasKey(x => x.ChatId);
     }
 }

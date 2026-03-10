@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/External/">
+    <Project Path="../GLV.Shared/GLV.Pomelo.EntityFrameworkCore.MySql/src/EFCore.MySql/GLV.EFCore.MySql.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.ChatBot.EntityFramework/GLV.Shared.ChatBot.EntityFramework.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.ChatBot.Telegram/GLV.Shared.ChatBot.Telegram.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.ChatBot/GLV.Shared.ChatBot.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.Common/GLV.Shared.Common.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.Data/GLV.Shared.Data.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.DataTransfer/GLV.Shared.DataTransfer.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.DependencyInjection/GLV.Shared.DependencyInjection.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.EntityFramework/GLV.Shared.EntityFramework.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.Hosting/GLV.Shared.Hosting.csproj" />
+    <Project Path="../GLV.Shared/GLV.Shared.Server.Data/GLV.Shared.Server.Data.csproj" />
+  </Folder>
+  <Folder Name="/Sandbox/" />
+  <Project Path="DiegoG.ToDoListBot.Sandox/DiegoG.ToDoListBot.Sandox.csproj" />
+  <Project Path="DiegoG.ToDoListBot/DiegoG.ToDoListBot.csproj" />
+</Solution>

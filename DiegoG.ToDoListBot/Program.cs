@@ -19,6 +19,8 @@ public static class Program
         if (Directory.Exists(AppData) is false)
             Directory.CreateDirectory(AppData);
         AppDataFileProvider = new PhysicalFileProvider(AppData);
+        
+        #error Create a new TcpListener and as a worker to listen and respond to requests, and close them instantly
     }
 
     public static string AppData { get; } 

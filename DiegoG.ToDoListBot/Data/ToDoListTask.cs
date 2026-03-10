@@ -23,9 +23,9 @@ public class ToDoListTask : IDbModel<ToDoListTask, Snowflake>
         return str;
     }
 
-    public static void BuildModel(DbContext context, EntityTypeBuilder<ToDoListTask> mb)
+    public static void BuildModel(DbContext context, ModelBuilder mb, EntityTypeBuilder<ToDoListTask> eb)
     {
-        mb.HasKey(x => x.Id);
-        mb.Property(x => x.Id).HasConversion(x => x.AsLong(), x => new Snowflake(x));
+        eb.HasKey(x => x.Id);
+        eb.Property(x => x.Id).HasConversion(x => x.AsLong(), x => new Snowflake(x));
     }
 }
